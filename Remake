@@ -1,10 +1,28 @@
--- safe callback helper
-local function _safe_call(fn, ...)
-    if type(fn) == "function" then
-        local ok, err = pcall(fn, ...)
-        if not ok then warn("Callback error: " .. tostring(err)) end
-    end
-end
+--[[
+⣿⣿⣿⣿⡿⠟⠛⠋⠉⠉⠉⠉⠉⠛⠛⠻⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⠟⠈⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠀⠈⠙⠾⣿⣾⣿⣾⣿⣾⣿⣾⣿
+⠋⡁⠀⠀⠀⠀⠀⢀⠔⠁⠀⠀⢀⠠⠐⠈⠁⠀⠀⠁⠀⠈⠻⢾⣿⣾⣿⣾⣟⣿
+⠊⠀⠀⠀⠀⢀⠔⠃⠀⠀⠠⠈⠁⠀⠀⠀⠀⠀⠀⠆⠀⠀⠄⠀⠙⣾⣷⣿⢿⣿
+⠀⠀⠀⠀⡠⠉⠀⠀⠀⠀⠠⢰⢀⠀⠀⠀⠀⠀⠀⢰⠀⠀⠈⡀⠀⠈⢿⣟⣿⣿
+⠀⠀⢀⡜⣐⠃⠀⠀⠀⣠⠁⡄⠰⠀⠀⠀⠀⠀⠀⠐⠀⠀⠀⠰⠀⠀⠈⢿⣿⣿
+⠀⢠⠆⢠⡃⠀⠀⠀⣔⠆⡘⡇⢘⠀⠀⠀⠀⠀⠀⠈⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿
+⢀⡆⠀⡼⢣⠀⢀⠌⢸⢠⠇⡇⢘⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣿
+⣼⣃⠀⠁⢸⢀⠎⠀⢸⠎⠀⢸⢸⡄⠀⠀⠀⠀⠀⠂⢀⠀⠀⠀⠀⠀⠀⠀⠀⣿
+⠃⡏⠟⣷⣤⠁⠀⠀⠸⠀⠀⡾⢀⢇⠀⠀⠀⠀⠀⠄⠸⠀⠀⠀⠀⠄⠀⠀⠀⣿
+⠀⠀⣀⣿⣿⣿⢦⠀⠀⠀⠀⡧⠋⠘⡄⠀⠀⠀⠀⡇⢸⠀⠀⠠⡘⠀⠀⠀⢠⣿
+⠈⠀⢿⢗⡻⠃⠀⠀⠀⠀⠀⠀⠀⠀⠱⡀⠀⠀⢰⠁⡇⠀⠀⢨⠃⡄⢀⠀⣸⣿
+⠀⠀⠀⠈⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣱⠀⠀⡎⠸⠁⠀⢀⠞⡸⠀⡜⢠⣿⣿
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣺⣿⣧⢰⣧⡁⡄⠀⡞⠰⠁⡸⣠⣿⣿⣿
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⡿⠏⣿⠟⢁⠾⢛⣧⢼⠁⠀⠀⢰⣿⡿⣷⣿
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠡⠄⠀⡠⣚⡷⠊⠀⠀⠀⣿⡿⣿⡿⣿
+⡀⠀⠀⠀⠀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡠⠊⠁⢸⠁⠀⠀⠀⢰⣿⣿⡿⣿⣿
+⠱⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡠⠊⠀⠀⠀⡞⠀⠀⠀⠀⢸⣿⣷⣿⣿⣿
+⠀⠙⢦⣀⠀⠀⠀⠀⠀⢀⣀⣠⠖⠁⠀⠀⠀⠀⠀⡇⠀⠀⠀⠀⣸⣿⣾⡿⣷⣿
+⠀⠀⠀⠀⠉⠉⣩⡞⠉⠁⠀⢸⡄⠀⠀⠀⠀⠀⢰⠇⠀⠀⠀⠀⣿⣿⣷⣿⣿⣿
+ 
+@ VisualBETA | LICENSE
+--// Hey, before skidding read — LICENSE ✨.
+]]
 
 local UserInputService = game:GetService('UserInputService')
 local LocalPlayer = game:GetService('Players').LocalPlayer
@@ -16,10 +34,9 @@ local Mouse = LocalPlayer:GetMouse();
 
 
 local Library = {
-
 	connections = {};
     Flags = {};
-    enabled = true;
+    Enabled = true;
     slider_drag = false;
     core = nil;
     dragging = false;
@@ -150,7 +167,6 @@ print("Visual UI Loaded") --// [⚠️ DO NOT DELETE THIS, OR YOUR SCRIPT WILL B
 
 function Library.__init()
 	local container = Instance.new("ScreenGui")
-    Library.container = container
 	container.Name = "Visual"
     container.Parent = CoreGui
 
@@ -729,7 +745,7 @@ end)
 		TextLabel.Size = UDim2.new(0, 124, 0, 15)
 		TextLabel.ZIndex = 3
 		TextLabel.FontFace = Font.new("rbxasset://fonts/families/Montserrat.json", Enum.FontWeight.SemiBold)
-		TextLabel.Text = self.name.name
+		TextLabel.Text = self
 		TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 		TextLabel.TextScaled = true
 		TextLabel.TextSize = 14.000
@@ -1002,13 +1018,13 @@ end)
 			TextLabel.TextSize = 14.000
 			TextLabel.TextWrapped = true
 			TextLabel.TextXAlignment = Enum.TextXAlignment.Left
-			TextLabel.Text = self.name.name.name
+			TextLabel.Text = self.name
 
 			if not Library.Flags[self.flag] then
 				Library.Flags[self.flag] = self.enabled
 			end
 
-			_safe_call(self.callback, Library.Flags[self.flag])
+			self.callback(Library.Flags[self.flag])
 			
 			Module.update_toggle({
 				state = Library.Flags[self.flag],
@@ -1024,7 +1040,7 @@ end)
 					toggle = toggle
 				})
 
-				_safe_call(self.callback, Library.Flags[self.flag])
+				self.callback(Library.Flags[self.flag])
 			end)
 		end
 		function Module:create_description_toggle()
@@ -1123,7 +1139,7 @@ end)
 			TextLabel.TextSize = 14.000
 			TextLabel.TextWrapped = true
 			TextLabel.TextXAlignment = Enum.TextXAlignment.Left
-			TextLabel.Text = self.name.name.name
+			TextLabel.Text = self.name
 
 
 			local TextLabel = Instance.new("TextLabel")
@@ -1142,13 +1158,13 @@ end)
 			TextLabel.TextSize = 14.000
 			TextLabel.TextWrapped = true
 			TextLabel.TextXAlignment = Enum.TextXAlignment.Left
-			TextLabel.Text = self.name.name.description
+			TextLabel.Text = self.description
 
 			if not Library.Flags[self.flag] then
 				Library.Flags[self.flag] = self.enabled
 			end
 
-			_safe_call(self.callback, Library.Flags[self.flag])
+			self.callback(Library.Flags[self.flag])
 			
 			Module.update_toggle({
 				state = Library.Flags[self.flag],
@@ -1164,7 +1180,7 @@ end)
 					toggle = toggle
 				})
 
-				_safe_call(self.callback, Library.Flags[self.flag])
+				self.callback(Library.Flags[self.flag])
 			end)
 		end
 		function Module:create_paragraph()
@@ -1202,7 +1218,7 @@ end)
 			TextLabel.TextSize = 14.000
 			TextLabel.TextWrapped = true
 			TextLabel.TextXAlignment = Enum.TextXAlignment.Left
-			TextLabel.Text = self.name.name.name
+			TextLabel.Text = self.name
 
 			local TextLabel = Instance.new("TextLabel")
 			TextLabel.Parent = Paragraph 
@@ -1220,7 +1236,7 @@ end)
 			TextLabel.TextSize = 14.000
 			TextLabel.TextWrapped = true
 			TextLabel.TextXAlignment = Enum.TextXAlignment.Left
-			TextLabel.Text = self.name.name.title
+			TextLabel.Text = self.title
 		end
 		function Module:create_line()
 			local section = self.section == 'left' and left_section or right_section
@@ -1282,10 +1298,10 @@ end)
 			TextLabel.TextSize = 14.000
 			TextLabel.TextWrapped = true
 			TextLabel.TextXAlignment = Enum.TextXAlignment.Left
-			TextLabel.Text = self.name.name.name
+			TextLabel.Text = self.name
 
 			button.MouseButton1Click:Connect(function()
-	_safe_call(self.callback, )
+	self.callback()
 			end)
 		end
 		function Module:create_description_button()
@@ -1336,7 +1352,7 @@ end)
 			TextLabel.TextSize = 14.000
 			TextLabel.TextWrapped = true
 			TextLabel.TextXAlignment = Enum.TextXAlignment.Left
-			TextLabel.Text = self.name.name.name
+			TextLabel.Text = self.name
 
 			local TextLabel = Instance.new("TextLabel")
 			TextLabel.Parent = button
@@ -1354,10 +1370,10 @@ end)
 			TextLabel.TextSize = 14.000
 			TextLabel.TextWrapped = true
 			TextLabel.TextXAlignment = Enum.TextXAlignment.Left
-			TextLabel.Text = self.name.name.description
+			TextLabel.Text = self.description
 
 			button.MouseButton1Click:Connect(function()
-	_safe_call(self.callback, )
+	self.callback()
 			end)
 		end
         function Module:update_slider()
@@ -1387,7 +1403,7 @@ end)
            Library.Flags[self.flag] = number
 
            self.slider.Number.Text = number
-           _safe_call(self.callback, number)
+           self.callback(number)
         end
 
 		function Module:slider_loop()
@@ -1525,7 +1541,7 @@ end)
 			Number.TextWrapped = true
 			Number.TextXAlignment = Enum.TextXAlignment.Right
 
-			TextLabel.Text = self.name.name.name
+			TextLabel.Text = self.name
 			Number.Text = self.value
 
 			if not Library.Flags[self.flag] then
@@ -1533,7 +1549,7 @@ end)
 			end
 
 			slider.Number.Text = Library.Flags[self.flag]
-			_safe_call(self.callback, Library.Flags[self.flag])
+			self.callback(Library.Flags[self.flag])
 
 			slider.Box.Hitbox.MouseButton1Down:Connect(function()
 				if Library.slider_drag then
@@ -1680,7 +1696,7 @@ end)
 			Arrow.ZIndex = 2
 			Arrow.Image = "rbxassetid://17400678941"
 
-			dropdown.Box.TextLabel.Text = self.name.name.name
+			dropdown.Box.TextLabel.Text = self.name
 
 			local Dropdown = {}
 
@@ -1701,7 +1717,7 @@ end)
 			end
 			
 			function Dropdown:close()
-				dropdown.Box.TextLabel.Text = self.name.name.name
+				dropdown.Box.TextLabel.Text = self.name
 				TweenService:Create(dropdown.Box.Options, TweenInfo.new(0.4), {
 					Size = UDim2.new(0, 202, 0, 0)
 				}):Play()
@@ -1744,7 +1760,7 @@ end)
 					}):Play()
 				end
 
-				dropdown.Box.TextLabel.Text = self.name.name.new_option.Text
+				dropdown.Box.TextLabel.Text = self.new_option.Text
 			end
 
 			function Dropdown:update()
@@ -1767,7 +1783,7 @@ end)
 						if list_open then
 							dropdown.Box.TextLabel.Text = Library.Flags[self.flag]
 						end
-						_safe_call(self.callback, Library.Flags[self.flag])
+						self.callback(Library.Flags[self.flag])
 						Library.save_flags()
 
 						Dropdown.select_option({
@@ -1782,7 +1798,7 @@ end)
 				Library.Flags[self.flag] = self.option
 			end
 			
-			_safe_call(self.callback, Library.Flags[self.flag])
+			self.callback(Library.Flags[self.flag])
 			Dropdown.update(self)
 
 			dropdown.MouseButton1Click:Connect(function()
@@ -1883,15 +1899,15 @@ end)
 				textbox.Box.TextHolder.Text = Library.Flags[self.flag]
 			end
 
-			_safe_call(self.callback, Library.Flags[self.flag])
+			self.callback(Library.Flags[self.flag])
 			textbox.Box.TextHolder.FocusLost:Connect(function()
-				_safe_call(self.callback, textbox.Box.TextHolder.Text)
+				self.callback(textbox.Box.TextHolder.Text)
 				Library.save_flags()
 			end)
 
 			function Textbox:update(text)
 				textbox.Box.TextHolder.Text = text
-				_safe_call(self.callback, text)
+				self.callback(text)
 			end
 
         return Textbox;
@@ -1965,8 +1981,8 @@ end)
 			TextLabel_2.TextSize = 14.000
 			TextLabel_2.TextWrapped = true
 
-			keybind.TextLabel.Text = self.name.name.name
-			keybind.Box.TextLabel.Text = self.name.name.keycode.Name
+			keybind.TextLabel.Text = self.name
+			keybind.Box.TextLabel.Text = self.keycode.Name
 
 			if not Library.Flags[self.flag] then
 				Library.Flags[self.flag] = self.keycode.Name
@@ -1985,7 +2001,7 @@ end)
 			UserInputService.InputBegan:Connect(function(current, pressed)
 				if not pressed then
 					if current.KeyCode.Name == Library.Flags[self.flag] then
-						_safe_call(self.callback, Library.Flags[self.flag])
+						self.callback(Library.Flags[self.flag])
 					end
 				end
 			end)
