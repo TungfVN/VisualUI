@@ -151,8 +151,8 @@ print("Visual UI Loaded") --// [⚠️ DO NOT DELETE THIS, OR YOUR SCRIPT WILL B
 function Library.__init()
 	local container = Instance.new("ScreenGui")
     Library.container = container
-	container.Name = "Visual"
-    container.Parent = CoreGui
+    container.Name = "Visual"
+    container.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
 
     Library.core = container
 
