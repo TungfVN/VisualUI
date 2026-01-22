@@ -23,6 +23,25 @@ if not isfolder("VisualUI") then
     makefolder("VisualUI")
 end
 
+-- THÊM CÁC TÍNH NĂNG MỚI
+Library.Options = {
+    Title = "VisualUI Hub",
+    Author = "by VisualUI",
+    Folder = "VisualUI",
+    Icon = "door-open",
+    Size = UDim2.new(0, 699, 0, 426),
+    MinSize = Vector2.new(560, 350),
+    MaxSize = Vector2.new(850, 560),
+    Transparent = false,
+    Theme = "Dark",
+    Resizable = true,
+    SideBarWidth = 200,
+    BackgroundImageTransparency = 0.42,
+    HideSearchBar = false,
+    ScrollBarEnabled = false,
+    OpenKey = Enum.KeyCode.Insert
+}
+
 function Library:disconnect()
     for _, connection in pairs(self.connections) do
         if connection then
@@ -74,7 +93,7 @@ function Library:open()
     self.container.Mobile.Modal = true
 
     TweenService:Create(self.container.Container, TweenInfo.new(0.6, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), {
-        Size = UDim2.new(0, 699, 0, 426)
+        Size = self.Options.Size
     }):Play()
 
     TweenService:Create(self.container.Shadow, TweenInfo.new(0.6, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), {
@@ -141,6 +160,17 @@ function Library:visible()
     self.container.Mobile.State.Text = self.Enabled and "Close" or "Open"
 end
 
+-- THÊM FUNCTION TẠO WINDOW VỚI OPTIONS
+function Library:CreateWindow(options)
+    if options then
+        for key, value in pairs(options) do
+            self.Options[key] = value
+        end
+    end
+    
+    return self:new()
+end
+
 function Library:new()
     local container = Instance.new("ScreenGui")
     container.Name = "cac"
@@ -148,6 +178,16 @@ function Library:new()
 
     Library.core = container
     Library.container = container
+
+    -- Áp dụng theme
+    local backgroundColor
+    if self.Options.Theme == "Dark" then
+        backgroundColor = Color3.fromRGB(19, 20, 24)
+    elseif self.Options.Theme == "Light" then
+        backgroundColor = Color3.fromRGB(245, 245, 245)
+    else
+        backgroundColor = Color3.fromRGB(19, 20, 24)
+    end
 
     local Shadow = Instance.new("ImageLabel")
     Shadow.Name = "Shadow"
@@ -167,28 +207,43 @@ function Library:new()
     Container.Name = "Container"
     Container.Parent = container
     Container.AnchorPoint = Vector2.new(0.5, 0.5)
-    Container.BackgroundColor3 = Color3.fromRGB(19, 20, 24)
+    Container.BackgroundColor3 = backgroundColor
+    Container.BackgroundTransparency = self.Options.Transparent and 0.5 or 0
     Container.BorderColor3 = Color3.fromRGB(0, 0, 0)
     Container.BorderSizePixel = 0
     Container.ClipsDescendants = true
     Container.Position = UDim2.new(0.5, 0, 0.5, 0)
-    Container.Size = UDim2.new(0, 699, 0, 426)
+    Container.Size = self.Options.Size
     Container.Visible = false
 
     local ContainerCorner = Instance.new("UICorner")
     ContainerCorner.CornerRadius = UDim.new(0, 20)
     ContainerCorner.Parent = Container
 
-    local Top = Instance.new("ImageLabel")
+    -- THÊM BACKGROUND IMAGE NẾU CÓ
+    if self.Options.BackgroundImageTransparency < 1 then
+        local BackgroundImage = Instance.new("ImageLabel")
+        BackgroundImage.Name = "BackgroundImage"
+        BackgroundImage.Parent = Container
+        BackgroundImage.Size = UDim2.new(1, 0, 1, 0)
+        BackgroundImage.BackgroundTransparency = 1
+        BackgroundImage.ImageTransparency = self.Options.BackgroundImageTransparency
+        BackgroundImage.Image = "rbxassetid://17290899982"
+        BackgroundImage.ZIndex = 0
+    end
+
+    local Top = Instance.new("Frame")
     Top.Name = "Top"
     Top.Parent = Container
-    Top.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    Top.BackgroundTransparency = 1.000
+    Top.BackgroundColor3 = Color3.fromRGB(27, 28, 33)
     Top.BorderColor3 = Color3.fromRGB(0, 0, 0)
     Top.BorderSizePixel = 0
-    Top.Size = UDim2.new(0, 699, 0, 39)
-    Top.Image = ""
+    Top.Size = UDim2.new(1, 0, 0, 39)
 
+    local TopCorner = Instance.new("UICorner")
+    TopCorner.CornerRadius = UDim.new(0, 20)
+    TopCorner.Parent = Top
+    
     local Logo = Instance.new("ImageLabel")
     Logo.Name = "Logo"
     Logo.Parent = Top
@@ -199,7 +254,7 @@ function Library:new()
     Logo.BorderSizePixel = 0
     Logo.Position = UDim2.new(0.0387367606, 0, 0.5, 0)
     Logo.Size = UDim2.new(0, 30, 0, 25)
-    Logo.Image = ""
+    Logo.Image = "rbxassetid://17183279677" -- Icon mặc định
     
     local TextLabel = Instance.new("TextLabel")
     TextLabel.Parent = Top
@@ -209,14 +264,34 @@ function Library:new()
     TextLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
     TextLabel.BorderSizePixel = 0
     TextLabel.Position = UDim2.new(0.0938254446, 0, 0.496794879, 0)
-    TextLabel.Size = UDim2.new(0, 75, 0, 16)
+    TextLabel.Size = UDim2.new(0, 200, 0, 16)
     TextLabel.FontFace = Font.new("rbxasset://fonts/families/Montserrat.json", Enum.FontWeight.SemiBold)
-    TextLabel.Text = getgenv().namehub
+    TextLabel.Text = self.Options.Title
     TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     TextLabel.TextScaled = true
     TextLabel.TextSize = 14.000
     TextLabel.TextWrapped = true
     TextLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+    -- THÊM AUTHOR TEXT
+    if self.Options.Author then
+        local AuthorLabel = Instance.new("TextLabel")
+        AuthorLabel.Parent = Top
+        AuthorLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+        AuthorLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        AuthorLabel.BackgroundTransparency = 1.000
+        AuthorLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+        AuthorLabel.BorderSizePixel = 0
+        AuthorLabel.Position = UDim2.new(0.8, 0, 0.5, 0)
+        AuthorLabel.Size = UDim2.new(0, 150, 0, 16)
+        AuthorLabel.FontFace = Font.new("rbxasset://fonts/families/Montserrat.json", Enum.FontWeight.Medium)
+        AuthorLabel.Text = self.Options.Author
+        AuthorLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+        AuthorLabel.TextScaled = true
+        AuthorLabel.TextSize = 12.000
+        AuthorLabel.TextWrapped = true
+        AuthorLabel.TextXAlignment = Enum.TextXAlignment.Right
+    end
 
     local Line = Instance.new("Frame")
     Line.Name = "Line"
@@ -224,7 +299,7 @@ function Library:new()
     Line.BackgroundColor3 = Color3.fromRGB(27, 28, 33)
     Line.BorderColor3 = Color3.fromRGB(0, 0, 0)
     Line.BorderSizePixel = 0
-    Line.Position = UDim2.new(0.296137333, 0, 0.0915492922, 0)
+    Line.Position = UDim2.new(self.Options.SideBarWidth/699, 0, 0.0915492922, 0)
     Line.Size = UDim2.new(0, 2, 0, 387)
 
     local tabs = Instance.new("ScrollingFrame")
@@ -235,9 +310,9 @@ function Library:new()
     tabs.BorderColor3 = Color3.fromRGB(0, 0, 0)
     tabs.BorderSizePixel = 0
     tabs.Position = UDim2.new(0, 0, 0.0915492922, 0)
-    tabs.Size = UDim2.new(0, 209, 0, 386)
+    tabs.Size = UDim2.new(0, self.Options.SideBarWidth, 0, 386)
     tabs.ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0)
-    tabs.ScrollBarThickness = 0
+    tabs.ScrollBarThickness = self.Options.ScrollBarEnabled and 3 or 0
     tabs.Parent = Container
 
     local tabslist = Instance.new("UIListLayout")
@@ -252,6 +327,24 @@ function Library:new()
 
     local tabsCorner = Instance.new("UICorner")
     tabsCorner.Parent = tabs
+
+    -- SEARCH BAR NẾU KHÔNG ẨN
+    if not self.Options.HideSearchBar then
+        local SearchBar = Instance.new("TextBox")
+        SearchBar.Name = "SearchBar"
+        SearchBar.Parent = Container
+        SearchBar.Position = UDim2.new(self.Options.SideBarWidth/699 + 0.02, 0, 0.03, 0)
+        SearchBar.Size = UDim2.new(0, 250, 0, 30)
+        SearchBar.BackgroundColor3 = Color3.fromRGB(27, 28, 33)
+        SearchBar.TextColor3 = Color3.fromRGB(255, 255, 255)
+        SearchBar.PlaceholderText = "Search..."
+        SearchBar.Font = Enum.Font.Montserrat
+        SearchBar.TextSize = 14
+        
+        local SearchCorner = Instance.new("UICorner")
+        SearchCorner.CornerRadius = UDim.new(0, 8)
+        SearchCorner.Parent = SearchBar
+    end
 
     local mobile_button = Instance.new("TextButton")
     mobile_button.Name = "Mobile"
@@ -346,7 +439,7 @@ function Library:new()
 
         if not Library:exist() then return end
 
-        if input.KeyCode == Enum.KeyCode.Insert then
+        if input.KeyCode == self.Options.OpenKey then
             Library:visible()
         end
     end)
@@ -354,6 +447,55 @@ function Library:new()
     mobile_button.MouseButton1Click:Connect(function()
         Library:visible()
     end)
+
+    -- RESIZE FUNCTIONALITY
+    if self.Options.Resizable then
+        local resizeButton = Instance.new("TextButton")
+        resizeButton.Name = "ResizeButton"
+        resizeButton.Parent = Container
+        resizeButton.BackgroundTransparency = 1
+        resizeButton.Size = UDim2.new(0, 20, 0, 20)
+        resizeButton.Position = UDim2.new(1, -20, 1, -20)
+        resizeButton.Text = ""
+        
+        local resizeIcon = Instance.new("ImageLabel")
+        resizeIcon.Parent = resizeButton
+        resizeIcon.Size = UDim2.new(1, 0, 1, 0)
+        resizeIcon.BackgroundTransparency = 1
+        resizeIcon.Image = "rbxassetid://6031091004"
+        resizeIcon.ImageColor3 = Color3.fromRGB(200, 200, 200)
+        
+        resizeButton.MouseButton1Down:Connect(function()
+            local startPos = UserInputService:GetMouseLocation()
+            local startSize = Container.Size
+            
+            local connection
+            connection = UserInputService.InputChanged:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseMovement then
+                    local delta = UserInputService:GetMouseLocation() - startPos
+                    local newWidth = math.clamp(
+                        startSize.Width.Offset + delta.X,
+                        self.Options.MinSize.X,
+                        self.Options.MaxSize.X
+                    )
+                    local newHeight = math.clamp(
+                        startSize.Height.Offset + delta.Y,
+                        self.Options.MinSize.Y,
+                        self.Options.MaxSize.Y
+                    )
+                    
+                    Container.Size = UDim2.new(0, newWidth, 0, newHeight)
+                    Shadow.Size = UDim2.new(0, newWidth + 77, 0, newHeight + 83)
+                end
+            end)
+            
+            UserInputService.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    connection:Disconnect()
+                end
+            end)
+        end)
+    end
 
     local Tab = {}
 
@@ -430,7 +572,7 @@ function Library:new()
         tab.BackgroundColor3 = Color3.fromRGB(27, 28, 33)
         tab.BorderColor3 = Color3.fromRGB(0, 0, 0)
         tab.BorderSizePixel = 0
-        tab.Size = UDim2.new(0, 174, 0, 40)
+        tab.Size = UDim2.new(0, self.Options.SideBarWidth - 35, 0, 40)
         tab.ZIndex = 2
         tab.AutoButtonColor = false
         tab.Font = Enum.Font.SourceSans
@@ -498,7 +640,7 @@ function Library:new()
         Fill.BorderColor3 = Color3.fromRGB(0, 0, 0)
         Fill.BorderSizePixel = 0
         Fill.Position = UDim2.new(0.5, 0, 0.5, 0)
-        Fill.Size = UDim2.new(0, 174, 0, 40)
+        Fill.Size = UDim2.new(0, self.Options.SideBarWidth - 35, 0, 40)
         Fill.ZIndex = 2
         
         local UICorner_2 = Instance.new("UICorner")
@@ -517,11 +659,11 @@ function Library:new()
         left_section.BackgroundTransparency = 1.000
         left_section.BorderColor3 = Color3.fromRGB(0, 0, 0)
         left_section.BorderSizePixel = 0
-        left_section.Position = UDim2.new(0.326180249, 0, 0.126760557, 0)
-        left_section.Size = UDim2.new(0, 215, 0, 372)
+        left_section.Position = UDim2.new(self.Options.SideBarWidth/699 + 0.02, 0, 0.126760557, 0)
+        left_section.Size = UDim2.new(0, (699 - self.Options.SideBarWidth)/2 - 20, 0, 372)
         left_section.AutomaticCanvasSize = Enum.AutomaticSize.Y
         left_section.ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0)
-        left_section.ScrollBarThickness = 0
+        left_section.ScrollBarThickness = self.Options.ScrollBarEnabled and 3 or 0
 
         local leftsectionlist = Instance.new("UIListLayout")
         leftsectionlist.Parent = left_section
@@ -536,11 +678,11 @@ function Library:new()
         right_section.BackgroundTransparency = 1.000
         right_section.BorderColor3 = Color3.fromRGB(0, 0, 0)
         right_section.BorderSizePixel = 0
-        right_section.Position = UDim2.new(0.662374794, 0, 0.126760557, 0)
-        right_section.Size = UDim2.new(0, 215, 0, 372)
+        right_section.Position = UDim2.new(self.Options.SideBarWidth/699 + 0.52, 0, 0.126760557, 0)
+        right_section.Size = UDim2.new(0, (699 - self.Options.SideBarWidth)/2 - 20, 0, 372)
         right_section.AutomaticCanvasSize = Enum.AutomaticSize.Y
         right_section.ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0)
-        right_section.ScrollBarThickness = 0
+        right_section.ScrollBarThickness = self.Options.ScrollBarEnabled and 3 or 0
 
         local rightsectionlist = Instance.new("UIListLayout")
         rightsectionlist.Parent = right_section
@@ -1350,3 +1492,24 @@ end
 
 Library:clear()
 Library:load_flags()
+
+-- CÁCH SỬ DỤNG:
+-- local main = Library:CreateWindow({
+--     Title = "My Super Hub",
+--     Icon = "door-open",
+--     Author = "by VisualUI",
+--     Folder = "MySuperHub",
+--     Size = UDim2.new(0, 580, 0, 460),
+--     MinSize = Vector2.new(560, 350),
+--     MaxSize = Vector2.new(850, 560),
+--     Transparent = true,
+--     Theme = "Dark",
+--     Resizable = true,
+--     SideBarWidth = 200,
+--     BackgroundImageTransparency = 0.42,
+--     HideSearchBar = true,
+--     ScrollBarEnabled = false,
+--     OpenKey = Enum.KeyCode.Insert
+-- })
+
+return Library
